@@ -1,16 +1,15 @@
 #include "QCalculatorUI.h"
 
 // 构造函数
-QCalculatorUI::QCalculatorUI() : QWidget(NULL, Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint)
-{
-    m_edit = new QLineEdit(this);
-}
+QCalculatorUI::QCalculatorUI() : QWidget(NULL, Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint) {}
 
 // 构造函数
 bool QCalculatorUI::construct()
 {
     bool ret = false;
     const char* btnText[20] = { "7", "8", "9", "+", "(", "4", "5", "6", "-", ")", "1", "2", "3", "*", "<-", "0", ".", "=", "/", "C" };
+
+    m_edit = new QLineEdit(this);
 
     if(m_edit != NULL)
     {
@@ -36,6 +35,9 @@ bool QCalculatorUI::construct()
 
                     // 按钮文本
                     m_buttons[i * 5 + j]->setText(btnText[i * 5 + j]);
+
+                    // 按钮点击事件绑定关联函数
+                    connect(m_buttons[i * 5 + j], SIGNAL(clicked()), this, SLOT(onButtonClicked()));
                 }
             }
         }
@@ -44,6 +46,14 @@ bool QCalculatorUI::construct()
     }
 
     return ret;
+}
+
+// 实现点击按钮的关联函数
+void QCalculatorUI::onButtonClicked()
+{
+    QPushButton* btn = ( QPushButton* )sender();
+
+    qDebug() << "onButtonClicked: " << btn->text();
 }
 
 // 实例函数
