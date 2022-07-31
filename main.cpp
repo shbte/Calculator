@@ -16,7 +16,8 @@ int main(int argc, char* argv[])
         cal->show();
 
         qDebug() << "x=" << cal->x() << "y=" << cal->y() << "width=" << cal->width() << "height=" << cal->height();
-        qDebug() << "geometry.x=" << cal->geometry().x() << "geometry.y=" << cal->geometry().y() << "geometry.width=" << cal->geometry().width() << "geometry.height=" << cal->geometry().height();
+        qDebug() << "geometry.x=" << cal->geometry().x() << "geometry.y=" << cal->geometry().y() << "geometry.width=" << cal->geometry().width()
+                 << "geometry.height=" << cal->geometry().height();
         qDebug() << "frameGeometry.x=" << cal->frameGeometry().x() << "frameGeometry.y=" << cal->frameGeometry().y() << "frameGeometry.width=" << cal->frameGeometry().width()
                  << "frameGeometry.height=" << cal->frameGeometry().height();
 
