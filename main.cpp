@@ -1,10 +1,13 @@
 #include <QApplication>
 
+#include "QCalculatorDec.h"
 #include "QCalculatorUI.h"
 
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
+
+    QCalculatorDec* pcal = new QCalculatorDec();
 
     QCalculatorUI* cal = QCalculatorUI::NewInstance();
     int ret = 0;

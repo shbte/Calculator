@@ -53,7 +53,34 @@ void QCalculatorUI::onButtonClicked()
 {
     QPushButton* btn = ( QPushButton* )sender();
 
-    qDebug() << "onButtonClicked: " << btn->text();
+    QString editText = m_edit->text();
+    QString btnText = btn->text();
+
+    qDebug() << "onButtonClicked: " << editText + btnText;
+
+    if(btnText == "C")
+    {
+        m_edit->setText("");
+    }
+    else if(btnText == "<-")
+    {
+        int len = editText.length();
+
+        if(len > 0)
+        {
+            m_edit->setText(editText.remove(len - 1, 1));
+        }
+    }
+    else if(btnText == "=")
+    {
+        m_edit->setText(editText + btnText);
+
+        // TODO...
+    }
+    else
+    {
+        m_edit->setText(editText + btnText);
+    }
 }
 
 // 实例函数
