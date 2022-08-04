@@ -1,18 +1,18 @@
 #include "QCalculatorDec.h"
 
-// 判断: 判断数字或者小数点
+// 数字或小数点判断函数
 bool QCalculatorDec::isDigitOrDot(QString s)
 {
     return (isNumber(s) || (s == "."));
 }
 
-// 判断: 是否为元算符或者括号
+// 符号判断函数
 bool QCalculatorDec::isSymbol(QString s)
 {
     return (isOperator(s) || isLeftBracket(s) || isRightBracket(s));
 }
 
-// 判断: 是否为一个数字
+// 数字判断函数
 bool QCalculatorDec::isNumber(QString s)
 {
     bool ret = false;
@@ -22,36 +22,43 @@ bool QCalculatorDec::isNumber(QString s)
     return ret;
 }
 
+// 符号位判断函数
 bool QCalculatorDec::isSign(QString s)
 {
     return ((s == "+") || (s == "-"));
 }
 
+// 操作符判断函数
 bool QCalculatorDec::isOperator(QString s)
 {
     return (isSign(s) || s == "*" || s == "/");
 }
 
+// 左括号判断函数
 bool QCalculatorDec::isLeftBracket(QString s)
 {
     return (s == "(");
 }
 
+// 右括号判断函数
 bool QCalculatorDec::isRightBracket(QString s)
 {
     return (s == ")");
 }
 
+// 运算优先级判断函数
 int QCalculatorDec::priority(QString s)
 {
     int ret = 0;
 
     if(isSign(s))
     {
+        // +或-时, 优先级为1
         ret = 1;
     }
     else if(s == "*" || s == "/")
     {
+        // *或/时, 优先级为2(1 < 2)
         ret = 2;
     }
     else
@@ -62,9 +69,10 @@ int QCalculatorDec::priority(QString s)
     return ret;
 }
 
+// 左右括号匹配函数
 bool QCalculatorDec::mathBracket(QQueue< QString >& exp)
 {
-    bool ret = false;
+    bool ret = true;
 
     int len = exp.length();
 
@@ -76,18 +84,24 @@ bool QCalculatorDec::mathBracket(QQueue< QString >& exp)
         {
             QString s = exp[i];
 
+            // 符号为左括号时, 入栈
             if(isLeftBracket(s))
             {
                 stack.push(s);
+                ret = false;
             }
+            // 符号为右括号时, 出栈
             else if(isRightBracket(s))
             {
-                if(stack.length() > 0)
+                if(!stack.isEmpty() && isLeftBracket(stack.top()))
                 {
                     stack.pop();
+                    ret = true;
                 }
                 else
                 {
+                    // 符号为右括号, 但栈内为空时, 则括号匹配失败, 且循环直接结束
+                    ret = false;
                     break;
                 }
             }
@@ -97,7 +111,8 @@ bool QCalculatorDec::mathBracket(QQueue< QString >& exp)
             }
         }
 
-        ret = stack.isEmpty();
+        // 最后左右符号正好匹配, 此时栈理应为空, 且不是右括号匹配失败而导致的循环匹配结束
+        ret = ret && stack.isEmpty();
     }
     else
     {
@@ -106,10 +121,6 @@ bool QCalculatorDec::mathBracket(QQueue< QString >& exp)
 
     return ret;
 }
-
-QString QCalculatorDec::calculate(QQueue< QString >& exp) {}
-QString QCalculatorDec::calculate(QString ls, QString op, QString rs) {}
-bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out) {}
 
 // 分离算法, 将运算表达式进行分离
 QQueue< QString > QCalculatorDec::split(const QString& exp)
@@ -143,7 +154,7 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
             }
 
             // 判断是否为符号位(当前为正负号, 且前一位为: 空 左括号 运算符)
-            if(isSign(s) && (s == "" || isLeftBracket(s) || isOperator(s)))
+            if(isSign(s) && (pre == "" || isLeftBracket(pre) || isOperator(pre)))
             {
                 number = s;
             }
@@ -158,7 +169,7 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
         pre = s;
     }
 
-    // 最后不为符号(右括号)而为数字时, 加入返回队列
+    // 将最后的数字, 加入返回队列
     if(!number.isEmpty())
     {
         ret.enqueue(number);
@@ -167,18 +178,88 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
     return ret;
 }
 
+bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
+{
+    bool ret = mathBracket(exp);
+
+    QStack< QString > stack;
+    out.clear();
+
+    while(ret && !exp.isEmpty())
+    {
+        // dequeue: 删除头部并返回
+        QString s = exp.dequeue();
+
+        if(isNumber(s))
+        {
+            out.enqueue(s);
+        }
+        else if(isOperator(s))
+        {
+            while(!stack.isEmpty() && priority(s) < priority(stack.top()))
+            {
+                out.enqueue(stack.pop());
+            }
+
+            stack.push(s);
+        }
+        else if(isLeftBracket(s))
+        {
+            stack.push(s);
+        }
+        else if(isRightBracket(s))
+        {
+            while(!stack.isEmpty() && !isLeftBracket(stack.top()))
+            {
+                out.enqueue(stack.pop());
+            }
+
+            stack.pop();
+        }
+        else
+        {
+            // TODO...
+        }
+    }
+
+    while(!stack.isEmpty())
+    {
+        out.enqueue(stack.pop());
+    }
+
+    if(!ret)
+    {
+        out.clear();
+    }
+
+    return ret;
+}
+QString QCalculatorDec::calculate(QQueue< QString >& exp) {}
+QString QCalculatorDec::calculate(QString ls, QString op, QString rs) {}
+
 // 无参构造函数
 QCalculatorDec::QCalculatorDec()
 {
     m_exp = "";
     m_result = "";
 
-    QString s = "+9+(-3--1)*-5";
+    // QString s = "+9+(-3--1)*-5-(+5)*-5";
+    QString s = "-1+2-3*4";
     QQueue< QString > ret = split(s);
 
     for(int i = 0; i < ret.length(); i++)
     {
         qDebug() << ret[i];
+    }
+
+    qDebug() << "";
+
+    QQueue< QString > out;
+    transform(ret, out);
+
+    for(int i = 0; i < out.length(); i++)
+    {
+        qDebug() << out[i];
     }
 }
 
