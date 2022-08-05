@@ -6,7 +6,9 @@
 #include <QStack>
 #include <QString>
 
-class QCalculatorDec
+#include "ICalculator.h"
+
+class QCalculatorDec : public ICalculator
 {
 protected:
     QString m_exp;

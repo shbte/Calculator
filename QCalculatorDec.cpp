@@ -169,8 +169,11 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
             // TODO...
         }
 
-        // 更新前一字符
-        pre = s;
+        if(s != " ")
+        {
+            // 更新前一字符
+            pre = s;
+        }
     }
 
     // 将最后的数字, 加入返回队列

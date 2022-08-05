@@ -6,6 +6,8 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include "ICalculator.h"
+
 // QCalculatorUI间接继承QObject
 class QCalculatorUI : public QWidget
 {
@@ -15,6 +17,9 @@ class QCalculatorUI : public QWidget
 private:
     QLineEdit* m_edit;
     QPushButton* m_buttons[20];
+
+    // 计算逻辑类 => 把从UI类获取的"运算表达式"传入逻辑类进行计算
+    ICalculator* m_cal;
 
     // 二阶构造模式
     QCalculatorUI();
@@ -26,6 +31,10 @@ private slots:
 
 public:
     static QCalculatorUI* NewInstance();
+
+    // set/get函数
+    void setCalculator(ICalculator* cal);
+    ICalculator* getCalculator();
 
     void show();
 

@@ -51,7 +51,7 @@ bool QCalculatorUI::construct()
 // 实现点击按钮的关联函数
 void QCalculatorUI::onButtonClicked()
 {
-    QPushButton* btn = ( QPushButton* )sender();
+    QPushButton* btn = dynamic_cast< QPushButton* >(sender());
 
     QString editText = m_edit->text();
     QString btnText = btn->text();
@@ -73,9 +73,14 @@ void QCalculatorUI::onButtonClicked()
     }
     else if(btnText == "=")
     {
-        m_edit->setText(editText + btnText);
+        if(m_cal != NULL)
+        {
+            // 将四则运算表达式传入逻辑类进行计算
+            m_cal->expression(editText);
 
-        // TODO...
+            // 获取逻辑类的计算结果, 并将其显示
+            m_edit->setText(m_cal->result());
+        }
     }
     else
     {
@@ -104,6 +109,21 @@ void QCalculatorUI::show()
 
     move(1200, 300);
     setFixedSize(frameGeometry().width(), frameGeometry().height());
+
+    qDebug() << "x=" << x() << "y=" << y() << "width=" << width() << "height=" << height();
+    qDebug() << "geometry.x=" << geometry().x() << "geometry.y=" << geometry().y() << "geometry.width=" << geometry().width() << "geometry.height=" << geometry().height();
+    qDebug() << "frameGeometry.x=" << frameGeometry().x() << "frameGeometry.y=" << frameGeometry().y() << "frameGeometry.width=" << frameGeometry().width()
+             << "frameGeometry.height=" << frameGeometry().height();
+}
+
+// set/get函数
+void QCalculatorUI::setCalculator(ICalculator* cal)
+{
+    m_cal = cal;
+}
+ICalculator* QCalculatorUI::getCalculator()
+{
+    return m_cal;
 }
 
 // 析构函数

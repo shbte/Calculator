@@ -1,36 +1,17 @@
 #include <QApplication>
 
-#include "QCalculatorDec.h"
-#include "QCalculatorUI.h"
+#include "QCalculator.h"
 
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
 
-    QString exp = "(1+ 2)/(3*4)--1";
-    QCalculatorDec pcal;
-
-    if(pcal.expression(exp))
-    {
-        qDebug() << pcal.result();
-    }
-    else
-    {
-        qDebug() << "Error";
-    }
-
-    QCalculatorUI* cal = QCalculatorUI::NewInstance();
+    QCalculator* cal = QCalculator::NewInstance();
     int ret = 0;
 
     if(cal != NULL)
     {
         cal->show();
-
-        qDebug() << "x=" << cal->x() << "y=" << cal->y() << "width=" << cal->width() << "height=" << cal->height();
-        qDebug() << "geometry.x=" << cal->geometry().x() << "geometry.y=" << cal->geometry().y() << "geometry.width=" << cal->geometry().width()
-                 << "geometry.height=" << cal->geometry().height();
-        qDebug() << "frameGeometry.x=" << cal->frameGeometry().x() << "frameGeometry.y=" << cal->frameGeometry().y() << "frameGeometry.width=" << cal->frameGeometry().width()
-                 << "frameGeometry.height=" << cal->frameGeometry().height();
 
         ret = a.exec();
 
