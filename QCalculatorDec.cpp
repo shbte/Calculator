@@ -178,6 +178,7 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
     return ret;
 }
 
+// 中缀转后缀函数的实现 => 计算机程序逻辑更能对后缀表达式进行识别与计算
 bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
 {
     bool ret = mathBracket(exp);
@@ -192,29 +193,43 @@ bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
 
         if(isNumber(s))
         {
+            // 将数字加入返回队列
             out.enqueue(s);
         }
         else if(isOperator(s))
         {
+            // 将优先度更高的操作符出栈, 并加入到返回队列
             while(!stack.isEmpty() && priority(s) < priority(stack.top()))
             {
                 out.enqueue(stack.pop());
             }
 
+            // 将此次操作符入栈
             stack.push(s);
         }
         else if(isLeftBracket(s))
         {
+            // 将左括号入栈
             stack.push(s);
         }
         else if(isRightBracket(s))
         {
+            // 将栈中操作符与右括号进行匹配, 直至找到左括号前, 并将左括号前的操作符加入到返回队列
             while(!stack.isEmpty() && !isLeftBracket(stack.top()))
             {
                 out.enqueue(stack.pop());
             }
 
-            stack.pop();
+            if(!stack.isEmpty())
+            {
+                // 将栈中左括号出栈
+                stack.pop();
+            }
+            else
+            {
+                // 左括号未出栈, 栈不应为空, 为空则失败
+                ret = false;
+            }
         }
         else
         {
@@ -222,11 +237,13 @@ bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
         }
     }
 
+    // 将栈中剩余的操作符进行加入到返回队列
     while(!stack.isEmpty())
     {
         out.enqueue(stack.pop());
     }
 
+    // 判断转换过程是否成功, 失败则清空返回队列
     if(!ret)
     {
         out.clear();
@@ -234,6 +251,7 @@ bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
 
     return ret;
 }
+
 QString QCalculatorDec::calculate(QQueue< QString >& exp) {}
 QString QCalculatorDec::calculate(QString ls, QString op, QString rs) {}
 
@@ -244,7 +262,7 @@ QCalculatorDec::QCalculatorDec()
     m_result = "";
 
     // QString s = "+9+(-3--1)*-5-(+5)*-5";
-    QString s = "-1+2-3*4";
+    QString s = "1+2-3*4";
     QQueue< QString > ret = split(s);
 
     for(int i = 0; i < ret.length(); i++)
@@ -252,7 +270,7 @@ QCalculatorDec::QCalculatorDec()
         qDebug() << ret[i];
     }
 
-    qDebug() << "";
+    qDebug() << "transform: =>";
 
     QQueue< QString > out;
     transform(ret, out);
