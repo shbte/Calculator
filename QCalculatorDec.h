@@ -24,8 +24,8 @@ protected:
     bool mathBracket(QQueue< QString >& exp);
     QQueue< QString > split(const QString& exp);
     bool transform(QQueue< QString >& exp, QQueue< QString >& out);
-    QString calculate(QQueue< QString >& exp);
     QString calculate(QString ls, QString op, QString rs);
+    QString calculate(QQueue< QString >& exp);
 
 public:
     QCalculatorDec();

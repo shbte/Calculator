@@ -164,6 +164,10 @@ QQueue< QString > QCalculatorDec::split(const QString& exp)
                 ret.enqueue(s);
             }
         }
+        else
+        {
+            // TODO...
+        }
 
         // 更新前一字符
         pre = s;
@@ -252,37 +256,142 @@ bool QCalculatorDec::transform(QQueue< QString >& exp, QQueue< QString >& out)
     return ret;
 }
 
-QString QCalculatorDec::calculate(QQueue< QString >& exp) {}
-QString QCalculatorDec::calculate(QString ls, QString op, QString rs) {}
+// 计算子函数
+QString QCalculatorDec::calculate(QString ls, QString op, QString rs)
+{
+    QString ret = "Error";
+
+    if(isNumber(ls) && isNumber(rs))
+    {
+        double ld = ls.toDouble();
+        double rd = rs.toDouble();
+
+        if(op == "+")
+        {
+            // 加法的情况
+            ret.sprintf("%f", ld + rd);
+            // ret = QString("%f").arg(ld + rd);
+        }
+        else if(op == "-")
+        {
+            // 减法的情况
+            ret.sprintf("%f", ld - rd);
+            // ret = QString("%f").arg(ld - rd);
+        }
+        else if(op == "*")
+        {
+            // 乘法的情况
+            ret.sprintf("%f", ld * rd);
+            // ret = QString("%f").arg(ld * rd);
+        }
+        else if(op == "/")
+        {
+            // 除法的情况, 需进行除数为否为零的判断
+            const double d = 0.000000000000001;
+
+            if((-d < rd) && (rd < d))
+            {
+                // 除数为零, 返回异常
+                ret = "Error";
+            }
+            else
+            {
+                // 除数不为零, 运算正常进行
+                ret.sprintf("%f", ld / rd);
+                // ret = QString("%f").arg(ld / rd);
+            }
+        }
+        else
+        {
+            // 运算符异常
+            ret = "Error";
+        }
+    }
+
+    return ret;
+}
+// 计算函数
+QString QCalculatorDec::calculate(QQueue< QString >& exp)
+{
+    QString ret = "Error";
+    QStack< QString > stack;
+
+    while(!exp.isEmpty())
+    {
+        QString s = exp.dequeue();
+
+        if(isNumber(s))
+        {
+            stack.push(s);
+        }
+        else if(isOperator(s))
+        {
+            // 获取操作数
+            QString rs = !stack.isEmpty() ? stack.pop() : "";
+            QString ls = !stack.isEmpty() ? stack.pop() : "";
+
+            // 计算子函数
+            QString result = calculate(ls, s, rs);
+
+            if(result != "Error")
+            {
+                stack.push(result);
+            }
+            else
+            {
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // 运算结束, 对结果进行判断 => 四则运算表达式为空, 栈中保存数字结果
+    if(exp.isEmpty() && (stack.length() == 1) && isNumber(stack.top()))
+    {
+        ret = stack.top();
+    }
+
+    return ret;
+}
 
 // 无参构造函数
 QCalculatorDec::QCalculatorDec()
 {
     m_exp = "";
     m_result = "";
-
-    // QString s = "+9+(-3--1)*-5-(+5)*-5";
-    QString s = "1+2-3*4";
-    QQueue< QString > ret = split(s);
-
-    for(int i = 0; i < ret.length(); i++)
-    {
-        qDebug() << ret[i];
-    }
-
-    qDebug() << "transform: =>";
-
-    QQueue< QString > out;
-    transform(ret, out);
-
-    for(int i = 0; i < out.length(); i++)
-    {
-        qDebug() << out[i];
-    }
 }
 
-bool QCalculatorDec::expression(const QString& exp) {}
-QString QCalculatorDec::expression() {}
-QString QCalculatorDec::result() {}
+// 计算函数 => 外部调用
+bool QCalculatorDec::expression(const QString& exp)
+{
+    bool ret = false;
+    m_exp = exp;
+
+    // 分离四则运算表达式
+    QQueue< QString > splitStr = split(exp);
+
+    // 中缀转后缀
+    QQueue< QString > transStr;
+    ret = transform(splitStr, transStr);
+
+    if(ret)
+    {
+        // 计算结果
+        m_result = calculate(transStr);
+
+        // 对计算结果进行判断
+        ret = (m_result != "Error");
+    }
+
+    return ret;
+}
+
+QString QCalculatorDec::result()
+{
+    return m_result;
+}
 
 QCalculatorDec::~QCalculatorDec() {}

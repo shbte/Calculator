@@ -7,7 +7,17 @@ int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
 
-    QCalculatorDec* pcal = new QCalculatorDec();
+    QString exp = "(1+ 2)/(3*4)--1";
+    QCalculatorDec pcal;
+
+    if(pcal.expression(exp))
+    {
+        qDebug() << pcal.result();
+    }
+    else
+    {
+        qDebug() << "Error";
+    }
 
     QCalculatorUI* cal = QCalculatorUI::NewInstance();
     int ret = 0;
